@@ -14,6 +14,10 @@ role Native::Packing[Native::Packing::Endian $endian] {
     my constant HostEndian = HostIsNetworkEndian
         ?? Network !! Vax;
 
+    method host-endian {
+        HostEndian
+    }
+
     #| convert between differing architectures
     method unpack-foreign(\buf) {
         # ensure we're working at the byte level
@@ -46,7 +50,7 @@ role Native::Packing[Native::Packing::Endian $endian] {
     }
 
     #| matching architecture - straight copy
-    method unpack-native(\buf) {
+    method unpack-host(\buf) {
         # ensure we're working at the byte level
         my $buf = nativecast(CArray[uint8], buf);
         my uint $off = 0;
@@ -63,7 +67,7 @@ role Native::Packing[Native::Packing::Endian $endian] {
     }
 
     #| matching architecture - straight copy
-    method read-native(\fh) {
+    method read-host(\fh) {
         # ensure we're working at the byte level
         my %args = self.^attributes.map: {
             my str $name = .name.substr(2);
@@ -78,14 +82,63 @@ role Native::Packing[Native::Packing::Endian $endian] {
 
     method unpack(\buf) {
         $endian == HostEndian
-            ?? self.unpack-native(buf)
+            ?? self.unpack-host(buf)
             !! self.unpack-foreign(buf)
     }
 
     method read(\fh) {
         $endian == HostEndian
-            ?? self.read-native(fh)
+            ?? self.read-host(fh)
             !! self.read-foreign(fh)
+    }
+
+    #| convert between differing architectures
+    method pack-foreign {
+        # ensure we're working at the byte level
+        my buf8 $buf .= new;
+        my uint $off = 0;
+        for self.^attributes {
+            my str $name = .name.substr(2);
+            my $type = .type;
+            my uint $byte-count = $type.^nativesize div 8;
+            my $cval = CArray[$type].new;
+            $cval[0] = self."$name"();
+            my $bytes = nativecast(CArray[uint8], $cval);
+            loop (my int $i = 1; $i <= $byte-count; $i++) {
+                $buf.append: $bytes[$byte-count - $i];
+            }
+        };
+        $buf;
+    }
+
+    method pack-host {
+        # ensure we're working at the byte level
+        my buf8 $buf .= new;
+        my uint $off = 0;
+        for self.^attributes {
+            my str $name = .name.substr(2);
+            my $type = .type;
+            my uint $byte-count = $type.^nativesize div 8;
+            my $cval = CArray[$type].new;
+            $cval[0] = self."$name"();
+            my $bytes = nativecast(CArray[uint8], $cval);
+            loop (my int $i = 0; $i < $byte-count; $i++) {
+                $buf.append: $bytes[$i];
+            }
+        };
+        $buf;
+    }
+
+    method pack {
+        $endian == HostEndian
+            ?? self.pack-host
+            !! self.pack-foreign
+    }
+
+    method write(\fh) {
+        $endian == HostEndian
+            ?? self.write-host(fh)
+            !! self.write-foreign(fh)
     }
 
 }
