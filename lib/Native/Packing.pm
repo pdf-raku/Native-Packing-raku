@@ -3,8 +3,7 @@ use NativeCall::Types;
 
 my enum Native::Packing::Endian is export(:Endian) <Network Vax>;
 
-role Native::Packing[Native::Packing::Endian $endian] {
-
+role Native::Packing {
     my constant HostIsNetworkEndian = do {
         my $i = CArray[uint16].new(0x1234);
         my $j = nativecast(CArray[uint16], $i);
@@ -42,7 +41,7 @@ role Native::Packing[Native::Packing::Endian $endian] {
             my str $name = .name.substr(2);
             my $type = .type;
             my uint $byte-count = $type.^nativesize div 8;
-            my buf8 $native = fh.read($byte-count);
+            my $native = CArray[uint8].new: fh.read($byte-count).reverse;
             my $cval = nativecast(CArray[$type], $native);
             $name => $cval[0];
         };
@@ -80,18 +79,6 @@ role Native::Packing[Native::Packing::Endian $endian] {
         self.new(|%args);
     }
 
-    method unpack(\buf) {
-        $endian == HostEndian
-            ?? self.unpack-host(buf)
-            !! self.unpack-foreign(buf)
-    }
-
-    method read(\fh) {
-        $endian == HostEndian
-            ?? self.read-host(fh)
-            !! self.read-foreign(fh)
-    }
-
     #| convert between differing architectures
     method pack-foreign {
         # ensure we're working at the byte level
@@ -109,6 +96,11 @@ role Native::Packing[Native::Packing::Endian $endian] {
             }
         };
         $buf;
+    }
+
+    #| convert between differing architectures
+    method write-foreign($fh) {
+        $fh.write: self.pack-foreign;
     }
 
     method pack-host {
@@ -129,14 +121,36 @@ role Native::Packing[Native::Packing::Endian $endian] {
         $buf;
     }
 
+    #| convert between differing architectures
+    method write-host($fh) {
+        $fh.write: self.pack-host;
+    }
+
+}
+
+role Native::Packing[Native::Packing::Endian $endian]
+    does Native::Packing {
+
+    method unpack(\buf) {
+        $endian == self.host-endian
+            ?? self.unpack-host(buf)
+            !! self.unpack-foreign(buf)
+    }
+
+    method read(\fh) {
+        $endian == self.host-endian
+            ?? self.read-host(fh)
+            !! self.read-foreign(fh)
+    }
+
     method pack {
-        $endian == HostEndian
+        $endian == self.host-endian
             ?? self.pack-host
             !! self.pack-foreign
     }
 
     method write(\fh) {
-        $endian == HostEndian
+        $endian == self.host-endian
             ?? self.write-host(fh)
             !! self.write-foreign(fh)
     }

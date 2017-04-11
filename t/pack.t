@@ -11,11 +11,11 @@ class N does Native::Packing[Network] {
 my $struct = N.new: :a(10), :b(20), :c(30);
 
 my $n-buf = $struct.pack;
-is-deeply $n-buf, Buf[uint8].new(10, 0, 20, 30), 'network-packing';
+is-deeply $n-buf, Buf[uint8].new(10, 0, 20, 30), 'network packing';
 
 my $n-struct = N.unpack: $n-buf;
 
-is-deeply $n-struct, $struct, 'network round-trip';
+is-deeply $n-struct, $struct, 'network pack/unpack round-trip';
 
 class V does Native::Packing[Vax] {
       has uint8 $.a;
@@ -26,7 +26,7 @@ class V does Native::Packing[Vax] {
 $struct = V.new: :a(10), :b(20), :c(30);
 
 my $v-buf = $struct.pack;
-is-deeply $v-buf, Buf[uint8].new(10, 20, 0, 30), 'vax-packing';
+is-deeply $v-buf, Buf[uint8].new(10, 20, 0, 30), 'vax pack/unpack round-trip';
 
 my $v-struct = V.unpack: $v-buf;
 
