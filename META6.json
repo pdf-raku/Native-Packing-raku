@@ -3,7 +3,7 @@
     "name"        : "Native::Packing",
     "version"     : "0.0.1",
     "auth"        : "github:p6-pdf",
-    "description" : "Binary packing anf unpacking, with endian conversion",
+    "description" : "Endian safe Binary packing anf unpacking",
     "depends"     : [ ],
     "source-url"  : "git://github.com/p6-pdf/perl6-Native-Packing.git",
     "provides"    : {
