@@ -3,30 +3,32 @@ use Test;
 use Native::Packing :Endian;
 
 class N does Native::Packing[Network] {
-      has uint8 $.a;
+      has uint8  $.a;
       has uint16 $.b;
-      has uint8 $.c
+      has uint8  $.c;
+      has num32  $.float;
 }
 
-my $struct = N.new: :a(10), :b(20), :c(30);
+my $struct = N.new: :a(10), :b(20), :c(30), :float(42e0);
 
 my $n-buf = $struct.pack;
-is-deeply $n-buf, Buf[uint8].new(10, 0, 20, 30), 'network packing';
+is-deeply $n-buf, Buf[uint8].new(10, 0, 20, 30, 66, 40, 0, 0), 'network packing';
 
 my $n-struct = N.unpack: $n-buf;
 
 is-deeply $n-struct, $struct, 'network pack/unpack round-trip';
 
 class V does Native::Packing[Vax] {
-      has uint8 $.a;
+      has uint8  $.a;
       has uint16 $.b;
-      has uint8 $.c
+      has uint8  $.c;
+      has num32  $.float;
 }
 
-$struct = V.new: :a(10), :b(20), :c(30);
+$struct = V.new: :a(10), :b(20), :c(30), :float(42e0);
 
 my $v-buf = $struct.pack;
-is-deeply $v-buf, Buf[uint8].new(10, 20, 0, 30), 'vax pack/unpack round-trip';
+is-deeply $v-buf, Buf[uint8].new(10, 20, 0, 30, 0, 0, 40, 66), 'vax pack/unpack round-trip';
 
 my $v-struct = V.unpack: $v-buf;
 
