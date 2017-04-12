@@ -5,8 +5,9 @@ use Native::Packing :Endian;
 class N does Native::Packing[Network] {
       has uint8  $.a;
       has uint16 $.b;
-      has uint8  $.c;
+      has uint8  $!c;
       has num32  $.float;
+      method TWEAK(:$!c) {}
 }
 
 my $struct = N.new: :a(10), :b(20), :c(30), :float(42e0);
@@ -21,8 +22,9 @@ is-deeply $n-struct, $struct, 'network pack/unpack round-trip';
 class V does Native::Packing[Vax] {
       has uint8  $.a;
       has uint16 $.b;
-      has uint8  $.c;
+      has uint8  $!c;
       has num32  $.float;
+      method TWEAK(:$!c) {}
 }
 
 $struct = V.new: :a(10), :b(20), :c(30), :float(42e0);
@@ -35,5 +37,3 @@ my $v-struct = V.unpack: $v-buf;
 is-deeply $v-struct, $struct, 'vax round-trip';
 
 done-testing;
-
-

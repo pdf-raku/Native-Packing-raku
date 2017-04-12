@@ -17,7 +17,7 @@ role Native::Packing {
         HostEndian
     }
 
-    multi sub unpack-foreign-attribute($type, Buf $buf, uint $off is rw) {
+    multi sub unpack-foreign-attribute($type, Buf $buf, uint $off is rw) is default {
         my uint $byte-count = $type.^nativesize div 8;
         my buf8 $native .= new: $buf.subbuf($off, $byte-count).reverse;
         $off += $byte-count;
@@ -37,7 +37,7 @@ role Native::Packing {
         self.new(|%args);
     }
 
-    multi sub read-foreign-attribute($type, IO::Handle \fh) {
+    multi sub read-foreign-attribute($type, \fh) is default {
         my uint $byte-count = $type.^nativesize div 8;
         my $native = CArray[uint8].new: fh.read($byte-count).reverse;
         my $cval = nativecast(CArray[$type], $native);
@@ -56,7 +56,7 @@ role Native::Packing {
         self.new(|%args);
     }
 
-    multi sub unpack-host-attribute($type, Buf $buf, uint $off is rw) {
+    multi sub unpack-host-attribute($type, Buf $buf, uint $off is rw) is default {
         my uint $byte-count = $type.^nativesize div 8;
         my Buf $raw = $buf.subbuf($off, $byte-count);
         my $cval = nativecast(CArray[$type], $raw);
@@ -76,7 +76,7 @@ role Native::Packing {
         self.new(|%args);
     }
 
-    multi sub read-host-attribute($type, IO::Handle \fh) {
+    multi sub read-host-attribute($type, \fh) is default {
         my uint $byte-count = $type.^nativesize div 8;
         my buf8 $raw = fh.read( $byte-count);
         my $cval = nativecast(CArray[$type], $raw);
@@ -94,7 +94,7 @@ role Native::Packing {
         self.new(|%args);
     }
 
-    multi sub pack-foreign-attribute($type, Buf $buf, $val) {
+    multi sub pack-foreign-attribute($type, Buf $buf, $val) is default {
         my uint $byte-count = $type.^nativesize div 8;
         my $cval = CArray[$type].new;
         $cval[0] = $val;
@@ -110,10 +110,8 @@ role Native::Packing {
         my buf8 $buf .= new;
         my uint $off = 0;
         for self.^attributes {
-            my $type = .type;
-            my str $name = .name.substr(2);
-            my $val = self."$name"();
-            pack-foreign-attribute($type, $buf,  $val);
+            my $val = .get_value(self);
+            pack-foreign-attribute(.type, $buf,  $val);
         }
         $buf;
     }
@@ -123,7 +121,7 @@ role Native::Packing {
         $fh.write: self.pack-foreign;
     }
 
-    multi sub pack-host-attribute($type, Buf $buf, $val) {
+    multi sub pack-host-attribute($type, Buf $buf, $val) is default {
         my uint $byte-count = $type.^nativesize div 8;
         my $cval = CArray[$type].new;
         $cval[0] = $val;
@@ -138,10 +136,8 @@ role Native::Packing {
         my buf8 $buf .= new;
         my uint $off = 0;
         for self.^attributes {
-            my $type = .type;
-            my str $name = .name.substr(2);
-            my $val = self."$name"();
-            pack-host-attribute($type, $buf,  $val);
+            my $val = .get_value(self);
+            pack-host-attribute(.type, $buf,  $val);
         }
         $buf;
     }
