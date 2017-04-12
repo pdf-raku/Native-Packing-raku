@@ -36,4 +36,17 @@ my $v-struct = V.unpack: $v-buf;
 
 is-deeply $v-struct, $struct, 'vax round-trip';
 
+class H does Native::Packing[Host] {
+      has uint8  $.a;
+      has uint16 $.b;
+      has uint8  $!c;
+      has num32  $.float;
+      method TWEAK(:$!c) {}
+}
+
+$struct = H.new: :a(10), :b(20), :c(30), :float(42e0);
+my $h-buf = $struct.pack;
+my $h-struct = H.unpack: $h-buf;
+is-deeply $h-struct, $struct, 'host round-trip';
+
 done-testing;

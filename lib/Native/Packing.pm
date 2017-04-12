@@ -1,7 +1,7 @@
 use NativeCall;
 use NativeCall::Types;
 
-my enum Native::Packing::Endian is export(:Endian) <Network Vax>;
+my enum Native::Packing::Endian is export(:Endian) <Network Vax Host>;
 
 role Native::Packing {
     my constant HostIsNetworkEndian = do {
@@ -153,19 +153,19 @@ role Native::Packing[Native::Packing::Endian $endian]
     does Native::Packing {
 
     method unpack(\buf) {
-        $endian == self.host-endian
+        $endian == self.host-endian | Host
             ?? self.unpack-host(buf)
             !! self.unpack-foreign(buf)
     }
 
     method read(\fh) {
-        $endian == self.host-endian
+        $endian == self.host-endian | Host
             ?? self.read-host(fh)
             !! self.read-foreign(fh)
     }
 
     method pack {
-        $endian == self.host-endian
+        $endian == self.host-endian | Host
             ?? self.pack-host
             !! self.pack-foreign
     }
