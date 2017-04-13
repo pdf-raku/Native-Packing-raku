@@ -22,8 +22,8 @@ types, tha represent the structure of the data.
     use v6;
     use Native::Packing :Endian;
 
-    # open a GIF read the header
-    my class LogicalDescriptor
+    # open a GIF read the 'screen' header
+    my class GifScreenStruct
         does Native::Packing[Endian::Vax] {
         has uint16 $.width;
         has uint16 $.height;
@@ -33,8 +33,9 @@ types, tha represent the structure of the data.
     }
 
     my $fh = "t/lightbulb.gif".IO.open( :r :bin);
+    $fh.read(6);  # skip GIF header
 
-    my LogicalDescriptor $screen .= read: $fh;
+    my GifScreenStruct $screen .= read: $fh;
 
     say "GIF has size {$screen.width} X {$screen.height}";
 

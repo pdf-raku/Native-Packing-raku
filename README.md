@@ -4,7 +4,7 @@ perl6-Native-Packing
 ## Description
 
 Native::Packing is a simple solution for structured reading
-and writing of binary data.
+and writing of binary numerical data.
 
 ## Example
 
@@ -15,45 +15,43 @@ use Native::Packing :Endian;
 # open a GIF read the header
 my class LogicalDescriptor
     does Native::Packing[Endian::Vax] {
+
     has uint16 $.width;
     has uint16 $.height;
-    has uint8 $.flags;
-    has uint8 $.bgColorIndex;
-    has uint8 $.aspect;
+    has uint8  $.flags;
+    has uint8  $.bgColorIndex;
+    has uint8  $.aspect;
 }
 
 my $fh = "t/lightbulb.gif".IO.open( :r :bin);
+$fh.read(6);  # skip GIF header
 
 my LogicalDescriptor $screen .= read: $fh;
-
 say "GIF has size {$screen.width} X {$screen.height}";
 ```
 
-## Description
-
-This module is a simple solution for the reading and writing
-or serialization of binary structures. It currently handles records
-that are comprised of natives integers (int8, uint8, int16, etc) and
+It currently handles records containing native integers (int8, uint8, int16, etc) and
 numerics (num32, num64).
 
-This module provides `read` and `write` methods for reading and
-writing data to binary files and `unpack` and `pack` methods.
+- Data may read be and written to binary files, via the `read` and `write` methods
+
+-  Or read and written to buffers via the `unpack` and `pack` methods.
 
 ## Endianess
 
-This defines the order of bytes in multibyte quantitys. There are two modes for binary
-formats:
+The two fixed modes are:
 
-- Network (little endian) - least significant byte on the right
-- Vax (big endian) - least significant byte on the right
+- Vax (big endian) - least significant byte written first
 
-You will need to determine the endianess of the binary format to correctly
-read and write it.
+- Network (little endian) - most significant byte written first
+
+The endianess of the binary format needs to be known to correctly
+read and write to it.
 
 There is also a `Host` mode. This will read and write binary data in the
-same endiness as the host computer.
+same endianess as the host computer.
 
-Examples:
+Endian Examples:
 
 ```
 use Native::Packing :Endian;
