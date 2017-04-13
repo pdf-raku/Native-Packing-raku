@@ -1,5 +1,70 @@
+use v6;
 use NativeCall;
 use NativeCall::Types;
+
+=begin pod
+
+=head1 NAME
+
+Native::Packing
+
+=head1 DESCRIPTION
+
+This module provides a role for serialization as simple binary
+structs. At this stage, only simple native integer and numeric
+types are supported.
+
+Any class applying this role should contain only simple numeric
+types, tha represent the structure of the data.
+
+=head1 EXAMPLE
+
+    use v6;
+    use Native::Packing :Endian;
+
+    # open a GIF read the header
+    my class LogicalDescriptor
+        does Native::Packing[Endian::Vax] {
+        has uint16 $.width;
+        has uint16 $.height;
+        has uint8 $.flags;
+        has uint8 $.bgColorIndex;
+        has uint8 $.aspect;
+    }
+
+    my $fh = "t/lightbulb.gif".IO.open( :r :bin);
+
+    my LogicalDescriptor $screen .= read: $fh;
+
+    say "GIF has size {$screen.width} X {$screen.height}";
+
+=head1 METHODS
+
+=head2 unpack(buf8)
+
+Class level method. Unpack bytes from a buffer. Create a struct object.
+
+=head2 pack(buf8)
+
+Object level method. Serialize the object to a buffer.
+
+=head2 read(fh)
+
+Class level method. Read data from a binary file. Create an object.
+
+=head2 write(fh)
+
+Class level method. Write the object to a file
+
+=head2 bytes
+
+Determine the overall size of the struct. Sum of all its attributes.
+
+=head2 host-endian
+
+Return the endian of the host Endian::Network(0) or Endian::Vax(1).
+
+=end pod
 
 my enum Native::Packing::Endian is export(:Endian) <Network Vax Host>;
 
@@ -25,7 +90,7 @@ role Native::Packing {
         $cval[0];
     }
 
-    #| convert between differing architectures
+    # convert between differing architectures
     method unpack-foreign(\buf) {
         # ensure we're working at the byte level
         my uint $off = 0;
@@ -44,7 +109,7 @@ role Native::Packing {
         $cval[0];
     }
 
-    #| convert between differing architectures
+    # convert between differing architectures
     method read-foreign(IO::Handle \fh) {
         # ensure we're working at the byte level
         my %args = self.^attributes.map: {
@@ -64,7 +129,7 @@ role Native::Packing {
         $cval[0];
     }
 
-    #| matching architecture - straight copy
+    # matching architecture - straight copy
     method unpack-host(\buf) {
         # ensure we're working at the byte level
         my uint $off = 0;
@@ -83,7 +148,7 @@ role Native::Packing {
         $cval[0];
     }
 
-    #| matching architecture - straight copy
+    # matching architecture - straight copy
     method read-host(\fh) {
         # ensure we're working at the byte level
         my %args = self.^attributes.map: {
@@ -104,7 +169,7 @@ role Native::Packing {
         }
     }
 
-    #| convert between differing architectures
+    # convert between differing architectures
     method pack-foreign {
         # ensure we're working at the byte level
         my buf8 $buf .= new;
@@ -116,7 +181,7 @@ role Native::Packing {
         $buf;
     }
 
-    #| convert between differing architectures
+    # convert between differing architectures
     method write-foreign($fh) {
         $fh.write: self.pack-foreign;
     }
@@ -142,11 +207,14 @@ role Native::Packing {
         $buf;
     }
 
-    #| convert between differing architectures
+    # convert between differing architectures
     method write-host($fh) {
         $fh.write: self.pack-host;
     }
 
+    method bytes {
+        [+] self.^attributes.map: *.type.^nativesize div 8;
+    }
 }
 
 role Native::Packing[Native::Packing::Endian $endian]
@@ -171,7 +239,7 @@ role Native::Packing[Native::Packing::Endian $endian]
     }
 
     method write(\fh) {
-        $endian == self.host-endian
+        $endian == self.host-endian | Host
             ?? self.write-host(fh)
             !! self.write-foreign(fh)
     }

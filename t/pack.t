@@ -10,6 +10,7 @@ class N does Native::Packing[Network] {
       method TWEAK(:$!c) {}
 }
 
+is N.bytes, 8, '.bytes';
 my $struct = N.new: :a(10), :b(20), :c(30), :float(42e0);
 
 my $n-buf = $struct.pack;
