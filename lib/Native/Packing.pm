@@ -111,7 +111,7 @@ role Native::Packing {
     }
 
     # convert between differing architectures
-    method read-foreign(IO::Handle \fh) {
+    method read-foreign(\fh) {
         # ensure we're working at the byte level
         my %args = self.^attributes.map: {
             my str $name = .name.substr(2);
