@@ -45,7 +45,7 @@ types, tha represent the structure of the data.
 
 Class level method. Unpack bytes from a buffer. Create a struct object.
 
-=head2 pack(buf8)
+=head2 pack
 
 Object level method. Serialize the object to a buffer.
 
@@ -55,7 +55,7 @@ Class level method. Read data from a binary file. Create an object.
 
 =head2 write(fh)
 
-Class level method. Write the object to a file
+Object level method. Write the object to a file
 
 =head2 bytes
 
