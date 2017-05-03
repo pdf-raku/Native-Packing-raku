@@ -7,7 +7,7 @@
     "auth"        : "github:p6-pdf",
     "description" : "Endian safe Binary Struct packing and unpacking",
     "depends"     : [ ],
-    "source-url"  : "git://github.com/p6-pdf/perl6-Native-Packing.git",
+    "source-url"  : "git://github.com/p6-pdf/Native-Packing-p6.git",
     "provides"    : {
 
         "Native::Packing" : "lib/Native/Packing.pm"
