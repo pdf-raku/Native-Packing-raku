@@ -73,10 +73,16 @@ role Native::Packing {
 
     my constant HostEndian = do {
         my $i = CArray[uint16].new(0x1234);
-        my $j = nativecast(CArray[uint16], $i);
-        $i[0] == 0x12
-            ?? Network
-            !! Vax;
+        my $j = nativecast(CArray[uint8], $i);
+        if $j[0] == 0x12 {
+            warn "unexpected high byte: $j[1]"
+                unless $j[1] == 0x34;
+            Network
+        } else {
+            warn "unexpected byte order: {$j>>.fmt('0x%X').join(',')}"
+                unless $j[0] == 0x34 && $j[1] == 0x12;
+            Vax;
+        }
     }
 
     method host-endian {
