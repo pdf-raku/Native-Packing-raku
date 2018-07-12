@@ -197,6 +197,7 @@ role Native::Packing {
         loop (my int $i = 1; $i <= $byte-count; $i++) {
             $buf.append: $bytes[$byte-count - $i];
         }
+        $buf;
     }
 
     # convert between differing architectures
@@ -227,6 +228,7 @@ role Native::Packing {
         loop (my int $i = 0; $i < $byte-count; $i++) {
             $buf.append: $bytes[$i];
         }
+        $buf;
     }
 
     method pack-host(buf8 $buf = buf8.new) {
