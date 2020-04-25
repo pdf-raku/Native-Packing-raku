@@ -202,10 +202,9 @@ role Native::Packing {
 
     # convert between differing architectures
     method pack-foreign(buf8 $buf = buf8.new) {
-        # ensure we're working at the byte level
-        my uint $off = 0;
+        my $pad = 0 without self;
         for self.^attributes {
-            my $val = self.defined ?? .get_value(self) !! 0;
+            my $val = $pad // .get_value(self);
             pack-foreign-attribute(.type, $buf, $val);
         }
         $buf;
@@ -232,9 +231,9 @@ role Native::Packing {
     }
 
     method pack-host(buf8 $buf = buf8.new) {
-        my uint $off = 0;
+        my $pad = 0 without self;
         for self.^attributes {
-            my $val = self.defined ?? .get_value(self) !! 0;
+            my $val = $pad // .get_value(self);
             pack-host-attribute(.type, $buf, $val);
         }
         $buf;

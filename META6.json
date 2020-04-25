@@ -4,13 +4,13 @@
     "license"     : "Artistic-2.0",
     "tags"        : ["binary", "endian", "native", "struct", "pack", "unpack" ], 
     "version"     : "0.0.3",
-    "auth"        : "github:p6-pdf",
+    "auth"        : "github:pdf-raku",
     "description" : "Endian safe Binary Struct packing and unpacking",
     "depends"     : [ ],
-    "source-url"  : "git://github.com/p6-pdf/Native-Packing-p6.git",
+    "source-url"  : "git://github.com/pdf-raku/Native-Packing-raku.git",
     "provides"    : {
 
-        "Native::Packing" : "lib/Native/Packing.pm"
+        "Native::Packing" : "lib/Native/Packing.rakumod"
 
      }
 }

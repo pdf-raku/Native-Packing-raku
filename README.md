@@ -1,7 +1,7 @@
-perl6-Native-Packing
+Native-Packing-raku
 ===============
 
-[![Build Status](https://travis-ci.org/p6-pdf/Native-Packing-p6.svg?branch=master)](https://travis-ci.org/p6-pdf/Native-Packing-p6)
+[![Build Status](https://travis-ci.org/pdf-raku/Native-Packing-raku.svg?branch=master)](https://travis-ci.org/pdf-raku/Native-Packing-raku)
 
 ## Description
 
