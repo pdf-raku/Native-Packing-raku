@@ -10,12 +10,10 @@ Native::Packing
 
 =head1 DESCRIPTION
 
-This module provides a role for serialization as simple binary
-structs. At this stage, only scalar native integer and numeric
-types are supported.
+This module provides a role for binary serialization of simple structs. At this stage, only scalar native integer and numeric attributes are supported.
 
-Any class applying this role should contain only simple native numeric
-types, tha represent the structure of the data.
+This role is applicable to classes that contain only simple native numeric
+attributes, representing the structure of the data.
 
 =head1 EXAMPLE
 
@@ -69,7 +67,7 @@ Return the endian of the host Endian::Network(0) or Endian::Vax(1).
 
 my enum Native::Packing::Endian is export(:Endian) <Network Vax Host>;
 
-role Native::Packing {
+role Native::Packing:ver<0.0.4> {
 
     sub detect-host-endian {
         my $i = CArray[uint16].new(0x1234);
@@ -104,10 +102,34 @@ role Native::Packing {
         $cval[0];
     }
 
+    sub storage-atts($class, :%pos, :@atts) {
+        storage-atts($_, :%pos, :@atts) for $class.^parents;
+        for $class.^attributes(:local) -> $att {
+            my $name := $att.name;
+            with %pos{$name} {
+                @atts[$_] = $att;
+            }
+            elsif $name ne '@!attributes' {            
+                %pos{$name} = +@atts;
+                @atts.push: $att;
+            }
+        }
+        @atts;
+    }
+    has @!attributes;
+    method !attributes {
+        with self {
+            @!attributes ||= storage-atts(.WHAT);
+        }
+        else {
+            storage-atts($_);
+        }
+    }
+
     # convert between differing architectures
     method unpack-foreign(\buf, UInt :$offset is copy = 0) {
         # ensure we're working at the byte level
-        my %args = self.^attributes.map: {
+        my %args = self!attributes.map: {
             my $type = .type;
             my str $name = .name.substr(2);
             $name => unpack-foreign-attribute($type, buf, $offset);
@@ -129,7 +151,7 @@ role Native::Packing {
     # convert between differing architectures
     method read-foreign(\fh) {
         # ensure we're working at the byte level
-        my %args = self.^attributes.map: {
+        my %args = self!attributes.map: {
             my str $name = .name.substr(2);
             my $type = .type;
             $name => read-foreign-attribute($type, fh);
@@ -155,7 +177,7 @@ role Native::Packing {
     # matching architecture - straight copy
     method unpack-host(\buf, UInt :$offset is copy = 0) {
         # ensure we're working at the byte level
-        my %args = self.^attributes.map: {
+        my %args = self!attributes.map: {
             my str $name = .name.substr(2);
             my $type = .type;
             $name => unpack-host-attribute($type, buf, $offset);
@@ -177,7 +199,7 @@ role Native::Packing {
     # matching architecture - straight copy
     method read-host(\fh) {
         # ensure we're working at the byte level
-        my %args = self.^attributes.map: {
+        my %args = self!attributes.map: {
             my str $name = .name.substr(2);
             my $type = .type;
             $name => read-host-attribute($type, fh);
@@ -203,7 +225,7 @@ role Native::Packing {
     # convert between differing architectures
     method pack-foreign(buf8 $buf = buf8.new) {
         my $pad = 0 without self;
-        for self.^attributes {
+        for self!attributes {
             my $val = $pad // .get_value(self);
             pack-foreign-attribute(.type, $buf, $val);
         }
@@ -232,7 +254,7 @@ role Native::Packing {
 
     method pack-host(buf8 $buf = buf8.new) {
         my $pad = 0 without self;
-        for self.^attributes {
+        for self!attributes {
             my $val = $pad // .get_value(self);
             pack-host-attribute(.type, $buf, $val);
         }
@@ -245,7 +267,7 @@ role Native::Packing {
     }
 
     method bytes {
-        [+] self.^attributes.map: {
+        [+] self!attributes.map: {
             given .type {
                 when Native::Packing { .bytes }
                 default { nativesizeof($_) }
