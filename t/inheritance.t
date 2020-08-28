@@ -8,7 +8,7 @@ class BaseStruct {
     has uint8  $.c;
 }
 
-class Struct is BaseStruct does Native::Packing[Network] {
+class Struct is BaseStruct is repr('CStruct') does Native::Packing[Network] {
     has uint16 $.c;
 }
 

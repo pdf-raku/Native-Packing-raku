@@ -109,21 +109,15 @@ role Native::Packing:ver<0.0.4> {
             with %pos{$name} {
                 @atts[$_] = $att;
             }
-            elsif $name ne '@!attributes' {            
+            elsif $name {
                 %pos{$name} = +@atts;
                 @atts.push: $att;
             }
         }
         @atts;
     }
-    has @!attributes;
     method !attributes {
-        with self {
-            @!attributes ||= storage-atts(.WHAT);
-        }
-        else {
-            storage-atts($_);
-        }
+        storage-atts(self.WHAT);
     }
 
     # convert between differing architectures
