@@ -67,7 +67,7 @@ Return the endian of the host Endian::Network(0) or Endian::Vax(1).
 
 my enum Native::Packing::Endian is export(:Endian) <Network Vax Host>;
 
-role Native::Packing:ver<0.0.4> {
+role Native::Packing:ver<0.0.5> {
 
     sub detect-host-endian {
         my $i = CArray[uint16].new(0x1234);

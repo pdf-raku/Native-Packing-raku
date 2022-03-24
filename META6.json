@@ -1,16 +1,28 @@
 {
-    "perl"        : "6.c",
-    "name"        : "Native::Packing",
-    "license"     : "Artistic-2.0",
-    "tags"        : ["binary", "endian", "native", "struct", "pack", "unpack" ], 
-    "version"     : "0.0.4",
-    "auth"        : "github:pdf-raku",
-    "description" : "Endian safe Binary Struct packing and unpacking",
-    "depends"     : [ ],
-    "source-url"  : "git://github.com/pdf-raku/Native-Packing-raku.git",
-    "provides"    : {
-
-        "Native::Packing" : "lib/Native/Packing.rakumod"
-
-     }
+  "auth": "zef:dwarring",
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "Endian safe Binary Struct packing and unpacking",
+  "license": "Artistic-2.0",
+  "name": "Native::Packing",
+  "perl": "6.c",
+  "provides": {
+    "Native::Packing": "lib/Native/Packing.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "git://github.com/pdf-raku/Native-Packing-raku.git",
+  "tags": [
+    "binary",
+    "endian",
+    "native",
+    "struct",
+    "pack",
+    "unpack"
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.5"
 }
