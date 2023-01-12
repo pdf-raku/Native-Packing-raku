@@ -43,9 +43,9 @@ numerics (`num32`, `num64`) and sub-records of type `Native::Packing`.
 
 The two fixed modes are:
 
-- Vax (big endian) - least significant byte written first
+- Vax (little endian) - least significant byte written first
 
-- Network (little endian) - most significant byte written first
+- Network (big endian) - most significant byte written first
 
 The endianess of the binary format needs to be known to correctly
 read and write to it.
