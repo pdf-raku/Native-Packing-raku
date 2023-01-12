@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.0.5  2023-01-12T14:17:34+13:00
+   - fix "Little Endian" and "Big Endian" descriptions in
+     README.md #4
+
 0.0.5  2022-03-25T09:00:30+13:00
    - move module from CPAN to zef
 
